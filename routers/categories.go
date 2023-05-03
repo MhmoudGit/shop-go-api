@@ -53,7 +53,7 @@ func GetCategory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve the category from the database by ID
-	err = db.Db.Where("ID = ?", id).First(&category).Error
+	err = db.Db.Where("ID = ?", id).First(&category).Preload("Products").Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			// If no category was found, return a 404 Not Found status code
