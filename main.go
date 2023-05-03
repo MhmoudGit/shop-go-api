@@ -5,26 +5,32 @@ import (
 	"net/http"
 
 	"github.com/MhmoudGit/shop-go-api/db"
+	"github.com/MhmoudGit/shop-go-api/middlewares"
 	"github.com/MhmoudGit/shop-go-api/routers"
 	"github.com/gorilla/mux"
 )
 
 func main() {
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 	// Initialize the database connection
 	db.ConnectDB()
 
 	// categories routes:
-	r.HandleFunc("/categories", routers.GetCategories).Methods("GET")
-	r.HandleFunc("/categories", routers.CreateCategory).Methods("POST")
-	r.HandleFunc("/categories/{id}", routers.GetCategory).Methods("GET")
-	r.HandleFunc("/categories/{id}", routers.UpdateCategory).Methods("PUT")
-	r.HandleFunc("/categories/{id}", routers.DeleteCategoty).Methods("DELETE")
+	router.HandleFunc("/categories", routers.GetCategories).Methods("GET")
+	router.HandleFunc("/categories", routers.CreateCategory).Methods("POST")
+	router.HandleFunc("/categories/{id}", routers.GetCategory).Methods("GET")
+	router.HandleFunc("/categories/{id}", routers.UpdateCategory).Methods("PUT")
+	router.HandleFunc("/categories/{id}", routers.DeleteCategoty).Methods("DELETE")
 	// products routes:
-	r.HandleFunc("/products", routers.CreateProduct).Methods("POST")
-	r.HandleFunc("/products/{CategoryId}", routers.GetProducts).Methods("GET")
-	r.HandleFunc("/products/{id}", routers.GetProduct).Methods("GET")
-	r.HandleFunc("/products/{id}", routers.UpdateProduct).Methods("PUT")
-	r.HandleFunc("/products/{id}", routers.DeleteProduct).Methods("DELETE")
-	log.Fatal(http.ListenAndServe(":8000", r))
+	router.HandleFunc("/products", routers.CreateProduct).Methods("POST")
+	router.HandleFunc("/products/{CategoryId}", routers.GetProducts).Methods("GET")
+	router.HandleFunc("/products/{id}", routers.GetProduct).Methods("GET")
+	router.HandleFunc("/products/{id}", routers.UpdateProduct).Methods("PUT")
+	router.HandleFunc("/products/{id}", routers.DeleteProduct).Methods("DELETE")
+	//wrap entire mux with logger middleware
+	wrappedMux := middlewares.NewLogger(router)
+
+	log.Printf("server is listening on Port 8000")
+	log.Fatal(http.ListenAndServe(":8000", wrappedMux))
+
 }
