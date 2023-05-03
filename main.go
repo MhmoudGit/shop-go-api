@@ -16,17 +16,9 @@ func main() {
 	db.ConnectDB()
 
 	// categories routes:
-	router.HandleFunc("/categories", routers.GetCategories).Methods("GET")
-	router.HandleFunc("/categories", routers.CreateCategory).Methods("POST")
-	router.HandleFunc("/categories/{id}", routers.GetCategory).Methods("GET")
-	router.HandleFunc("/categories/{id}", routers.UpdateCategory).Methods("PUT")
-	router.HandleFunc("/categories/{id}", routers.DeleteCategoty).Methods("DELETE")
+	routers.SetupCategoriesRoutes(router)
 	// products routes:
-	router.HandleFunc("/products", routers.CreateProduct).Methods("POST")
-	router.HandleFunc("/products/{CategoryId}", routers.GetProducts).Methods("GET")
-	router.HandleFunc("/products/{id}", routers.GetProduct).Methods("GET")
-	router.HandleFunc("/products/{id}", routers.UpdateProduct).Methods("PUT")
-	router.HandleFunc("/products/{id}", routers.DeleteProduct).Methods("DELETE")
+	routers.SetupProductRoutes(router)
 	//wrap entire mux with logger middleware
 	wrappedMux := middlewares.NewLogger(router)
 
