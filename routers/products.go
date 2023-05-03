@@ -33,7 +33,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 
 	// Retrieve the products from the database by categoryID
 	var products []models.Product
-	err = db.Db.Where("CategoryID = ?", id).Find(&products).Error
+	err = db.Db.Model(&models.Product{}).Where("category_id = ?", id).Find(&products).Error
 	if err != nil {
 		// If there was an error fetching categories, return a 500 status code
 		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
@@ -69,7 +69,7 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve the product from the database by ID
-	err = db.Db.Where("ID = ?", id).First(&product).Error
+	err = db.Db.Model(&models.Product{}).Where("ID = ?", id).First(&product).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			// If no product was found, return a 404 Not Found status code
@@ -97,7 +97,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert the product into the database
-	err = db.Db.Create(&product).Error
+	err = db.Db.Model(&models.Product{}).Create(&product).Error
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

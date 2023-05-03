@@ -8,5 +8,5 @@ import (
 type Category struct {
 	gorm.Model
 	Name     string    `json:"name" gorm:"unique;not null;index"`
-	Products []Product `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Products []Product `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:CategoryID"`
 }

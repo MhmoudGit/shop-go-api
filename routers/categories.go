@@ -17,7 +17,7 @@ var category models.Category
 func GetCategories(w http.ResponseWriter, r *http.Request) {
 	// Retrieve all categories from the database
 	var categories []models.Category
-	err := db.Db.Find(&categories).Error
+	err := db.Db.Model(&models.Category{}).Find(&categories).Error
 	if err != nil {
 		// If there was an error fetching categories, return a 500 status code
 		http.Error(w, "Failed to fetch categories", http.StatusInternalServerError)
@@ -53,7 +53,7 @@ func GetCategory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve the category from the database by ID
-	err = db.Db.Where("ID = ?", id).First(&category).Error
+	err = db.Db.Model(&models.Category{}).Where("ID = ?", id).First(&category).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			// If no category was found, return a 404 Not Found status code
@@ -81,7 +81,7 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert the category into the database
-	err = db.Db.Create(&category).Error
+	err = db.Db.Model(&models.Category{}).Create(&category).Error
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -104,7 +104,7 @@ func DeleteCategoty(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete the category from the database
-	result := db.Db.Unscoped().Delete(&category, id)
+	result := db.Db.Model(&models.Category{}).Unscoped().Delete(&category, id)
 	if result.Error != nil {
 		http.Error(w, "Failed to delete category", http.StatusInternalServerError)
 		return
