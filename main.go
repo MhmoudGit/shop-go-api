@@ -19,6 +19,7 @@ func main() {
 	routers.SetupCategoriesRoutes(router)
 	// products routes:
 	routers.SetupProductRoutes(router)
+
 	//wrap entire mux with logger middleware
 	wrappedMux := middlewares.NewLogger(router)
 
