@@ -11,6 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var category models.Category
+
 // get all categories
 func GetCategories(w http.ResponseWriter, r *http.Request) {
 	// Retrieve all categories from the database
@@ -51,7 +53,6 @@ func GetCategory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retrieve the category from the database by ID
-	var category models.Category
 	err = db.Db.Where("ID = ?", id).First(&category).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -73,7 +74,6 @@ func GetCategory(w http.ResponseWriter, r *http.Request) {
 // post a category
 func CreateCategory(w http.ResponseWriter, r *http.Request) {
 	// Parse the request body
-	var category models.Category
 	err := json.NewDecoder(r.Body).Decode(&category)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -104,7 +104,6 @@ func DeleteCategoty(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete the category from the database
-	var category models.Category
 	result := db.Db.Unscoped().Delete(&category, id)
 	if result.Error != nil {
 		http.Error(w, "Failed to delete category", http.StatusInternalServerError)
@@ -126,7 +125,6 @@ func UpdateCategory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse the request body
-	var category models.Category
 	err := json.NewDecoder(r.Body).Decode(&category)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
