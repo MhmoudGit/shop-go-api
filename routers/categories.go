@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"example.com/dokan/db"
-	"example.com/dokan/models"
+	"github.com/MhmoudGit/shop-go-api/db"
+	"github.com/MhmoudGit/shop-go-api/models"
 )
 
 func GetCategories(w http.ResponseWriter, r *http.Request) {

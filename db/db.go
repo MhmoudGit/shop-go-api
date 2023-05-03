@@ -3,8 +3,8 @@ package db
 import (
 	"fmt"
 
-	"example.com/dokan/config"
-	"example.com/dokan/models"
+	"github.com/MhmoudGit/shop-go-api/config"
+	"github.com/MhmoudGit/shop-go-api/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

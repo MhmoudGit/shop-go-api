@@ -1,4 +1,4 @@
-module example.com/dokan
+module github.com/MhmoudGit/shop-go-api
 
 go 1.20
 

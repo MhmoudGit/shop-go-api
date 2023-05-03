@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"example.com/dokan/db"
-	"example.com/dokan/routers"
+	"github.com/MhmoudGit/shop-go-api/db"
+	"github.com/MhmoudGit/shop-go-api/routers"
 )
 
 func main() {
