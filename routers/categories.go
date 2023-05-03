@@ -98,3 +98,28 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(category)
 }
+
+// delete a category
+func DeleteCategoty(w http.ResponseWriter, r *http.Request) {
+	// Parse the request body
+	var request struct {
+		ID int `json:"id"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Delete the category from the database
+	var category models.Category
+	result := db.Db.Delete(&category, request.ID)
+	if result.Error != nil {
+		http.Error(w, "Failed to delete category", http.StatusInternalServerError)
+		return
+	}
+
+	// Return a success response
+	w.WriteHeader(http.StatusNoContent)
+}
