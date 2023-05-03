@@ -1,17 +1,11 @@
 package models
 
 import (
-	"time"
+	"gorm.io/gorm"
 )
 
 // Database model
 type Category struct {
-	ID        int       `json:"id" gorm:"primaryKey"`
-	Name      string    `json:"name" gorm:"unique;not null"`
-	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime"`
+	gorm.Model
+	Name string `json:"name" gorm:"unique;not null"`
 }
-
-// schema for routers
-// type Categories struct {
-// 	Categories []Category
-// }

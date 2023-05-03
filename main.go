@@ -14,7 +14,9 @@ func main() {
 	// Initialize the database connection
 	db.ConnectDB()
 
-	r.HandleFunc("/categories", routers.GetCategories)
-	r.HandleFunc("/category/{id}", routers.GetCategoty)
+	// categories routes:
+	r.HandleFunc("/categories", routers.GetCategories).Methods("GET")
+	r.HandleFunc("/categories", routers.CreateCategory).Methods("POST")
+	r.HandleFunc("/category/{id}", routers.GetCategoty).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

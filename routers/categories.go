@@ -75,3 +75,26 @@ func GetCategoty(w http.ResponseWriter, r *http.Request) {
 	// encode the response to return json, return a 200 status code and the list of categories
 	json.NewEncoder(w).Encode(&category)
 }
+
+// post a category
+func CreateCategory(w http.ResponseWriter, r *http.Request) {
+	// Parse the request body
+	var category models.Category
+	err := json.NewDecoder(r.Body).Decode(&category)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Insert the category into the database
+	err = db.Db.Create(&category).Error
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return a JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(category)
+}
