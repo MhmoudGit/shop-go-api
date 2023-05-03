@@ -6,7 +6,6 @@ import (
 
 	"github.com/MhmoudGit/shop-go-api/db"
 	"github.com/MhmoudGit/shop-go-api/routers"
-	"github.com/MhmoudGit/shop-go-api/utils"
 	"github.com/gorilla/mux"
 )
 
@@ -15,8 +14,6 @@ func main() {
 	// Initialize the database connection
 	db.ConnectDB()
 
-	// test upload file
-	r.HandleFunc("/upload", utils.UploadFile).Methods("POST")
 	// categories routes:
 	r.HandleFunc("/categories", routers.GetCategories).Methods("GET")
 	r.HandleFunc("/categories", routers.CreateCategory).Methods("POST")

@@ -7,6 +7,7 @@ import (
 
 	"github.com/MhmoudGit/shop-go-api/db"
 	"github.com/MhmoudGit/shop-go-api/models"
+	"github.com/MhmoudGit/shop-go-api/utils"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
@@ -90,14 +91,10 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 // post a product
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	// Parse the request body
-	err := json.NewDecoder(r.Body).Decode(&product)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	product = utils.ParseMultiPartProduct(r)
 
 	// Insert the product into the database
-	err = db.Db.Model(&models.Product{}).Create(&product).Error
+	err := db.Db.Model(&models.Product{}).Create(&product).Error
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
