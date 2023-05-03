@@ -13,10 +13,6 @@ import (
 
 // get all categories
 func GetCategories(w http.ResponseWriter, r *http.Request) {
-
-	// set response header to json
-	w.Header().Set("Content-Type", "application/json")
-
 	// Retrieve all categories from the database
 	var categories []models.Category
 	err := db.Db.Find(&categories).Error
@@ -31,16 +27,13 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// encode the response to return json, return a 200 status code and the list of categories
+	// Return the updated category
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&categories)
 }
 
 // get single category by id
 func GetCategoty(w http.ResponseWriter, r *http.Request) {
-
-	// set response header to json
-	w.Header().Set("Content-Type", "application/json")
-
 	// Get the ID parameter from the query string
 	idStr := mux.Vars(r)["id"]
 	if idStr == "" {
@@ -72,7 +65,8 @@ func GetCategoty(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// encode the response to return json, return a 200 status code and the list of categories
+	// Return the updated category
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&category)
 }
 
@@ -122,4 +116,42 @@ func DeleteCategoty(w http.ResponseWriter, r *http.Request) {
 
 	// Return a success response
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// put a category
+func UpdateCategory(w http.ResponseWriter, r *http.Request) {
+	// Get the ID parameter from the query string
+	idStr := mux.Vars(r)["id"]
+	if idStr == "" {
+		// If the ID parameter is missing, return a 400 Bad Request status code
+		http.Error(w, "Missing 'id' parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Parse the request body
+	var category models.Category
+	err := json.NewDecoder(r.Body).Decode(&category)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Find the category in the database by ID
+	var existingCategory models.Category
+	result := db.Db.First(&existingCategory, idStr)
+	if result.Error != nil {
+		http.Error(w, "Failed to find category", http.StatusInternalServerError)
+		return
+	}
+
+	// Update the category in the database
+	result = db.Db.Model(&existingCategory).Updates(category)
+	if result.Error != nil {
+		http.Error(w, "Failed to update category", http.StatusInternalServerError)
+		return
+	}
+
+	// Return the updated category
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&category)
 }
