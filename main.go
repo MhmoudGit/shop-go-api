@@ -23,6 +23,8 @@ func main() {
 	// products routes:
 	r.HandleFunc("/products", routers.CreateProduct).Methods("POST")
 	r.HandleFunc("/products/{CategoryId}", routers.GetProducts).Methods("GET")
-	r.HandleFunc("/product/{id}", routers.GetProduct).Methods("GET")
+	r.HandleFunc("/products/{id}", routers.GetProduct).Methods("GET")
+	r.HandleFunc("/products/{id}", routers.UpdateProduct).Methods("PUT")
+	r.HandleFunc("/products/{id}", routers.DeleteProduct).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

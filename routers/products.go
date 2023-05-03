@@ -108,3 +108,63 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(product)
 }
+
+// delete a product
+func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	// Get the ID parameter from the URL
+	idStr := mux.Vars(r)
+	id, err := strconv.Atoi(idStr["id"])
+	if err != nil {
+		http.Error(w, "Invalid product ID", http.StatusBadRequest)
+		return
+	}
+
+	// Delete the category from the database
+	result := db.Db.Model(&models.Product{}).Unscoped().Delete(&product, id)
+	if result.Error != nil {
+		http.Error(w, "Failed to delete product", http.StatusInternalServerError)
+		return
+	}
+
+	// Return a success response
+	w.WriteHeader(http.StatusNoContent)
+	w.Write([]byte("Success"))
+}
+
+// update a produc
+func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	// Get the ID parameter from the query string
+	idStr := mux.Vars(r)["id"]
+	if idStr == "" {
+		// If the ID parameter is missing, return a 400 Bad Request status code
+		http.Error(w, "Missing 'id' parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Parse the request body
+	err := json.NewDecoder(r.Body).Decode(&product)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Find the product in the database by ID
+	var existingProduct models.Product
+	result := db.Db.Model(&models.Product{}).First(&existingProduct, idStr)
+	if result.Error != nil {
+		http.Error(w, "Failed to find product", http.StatusInternalServerError)
+		return
+	}
+	// Update the existing product with the new data
+	existingProduct.Name = product.Name
+	// Update the product in the database
+	result = db.Db.Model(&existingProduct).Updates(product)
+	if result.Error != nil {
+		http.Error(w, "Failed to update product", http.StatusInternalServerError)
+		return
+	}
+
+	// Return the updated product
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&product)
+}
