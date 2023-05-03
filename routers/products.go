@@ -138,13 +138,6 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse the request body
-	err := json.NewDecoder(r.Body).Decode(&product)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
 	// Find the product in the database by ID
 	var existingProduct models.Product
 	result := db.Db.Model(&models.Product{}).First(&existingProduct, idStr)
@@ -152,8 +145,9 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to find product", http.StatusInternalServerError)
 		return
 	}
-	// Update the existing product with the new data
-	existingProduct.Name = product.Name
+
+	// Parse the request body
+	product = utils.ParseMultiPartProduct(r)
 	// Update the product in the database
 	result = db.Db.Model(&existingProduct).Updates(product)
 	if result.Error != nil {

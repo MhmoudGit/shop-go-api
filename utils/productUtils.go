@@ -25,11 +25,12 @@ func ParseMultiPartProduct(r *http.Request) models.Product {
 	priceInt := ToInt(price)
 	categoryIdInt := ToInt(categoryId)
 
+	imagePath := fmt.Sprintf("/images/%v", handler.Filename)
 	product := models.Product{
 		Name:       name,
 		Price:      priceInt,
 		CategoryID: categoryIdInt,
-		Image:      handler.Filename,
+		Image:      imagePath,
 	}
 	return product
 }
