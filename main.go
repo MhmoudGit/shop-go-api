@@ -21,5 +21,6 @@ func main() {
 	r.HandleFunc("/categories/{id}", routers.UpdateCategory).Methods("PUT")
 	r.HandleFunc("/categories/{id}", routers.DeleteCategoty).Methods("DELETE")
 	// products routes:
+	r.HandleFunc("/products/{CategoryId}", routers.GetProducts).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }

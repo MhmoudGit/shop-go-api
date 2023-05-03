@@ -14,15 +14,15 @@ import (
 // get products by category id
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 	// Get the ID parameter from the query string
-	CourseIdStr := mux.Vars(r)["courseId"]
-	if CourseIdStr == "" {
+	CategoryIdStr := mux.Vars(r)["CategoryId"]
+	if CategoryIdStr == "" {
 		// If the ID parameter is missing, return a 400 Bad Request status code
 		http.Error(w, "Missing 'id' parameter", http.StatusBadRequest)
 		return
 	}
 
 	// Convert the ID parameter to an integer
-	id, err := strconv.Atoi(CourseIdStr)
+	id, err := strconv.Atoi(CategoryIdStr)
 	if err != nil {
 		// If the ID parameter is not a valid integer, return a 400 Bad Request status code
 		http.Error(w, "Invalid 'id' parameter", http.StatusBadRequest)

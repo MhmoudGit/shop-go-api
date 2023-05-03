@@ -7,6 +7,6 @@ import (
 // Database model
 type Category struct {
 	gorm.Model
-	Name     string `json:"name" gorm:"unique;not null;index"`
-	Products []Product
+	Name     string    `json:"name" gorm:"unique;not null;index"`
+	Products []Product `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
