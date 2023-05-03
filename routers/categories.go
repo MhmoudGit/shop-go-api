@@ -96,8 +96,8 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 // delete a category
 func DeleteCategoty(w http.ResponseWriter, r *http.Request) {
 	// Get the ID parameter from the URL
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	idStr := mux.Vars(r)
+	id, err := strconv.Atoi(idStr["id"])
 	if err != nil {
 		http.Error(w, "Invalid category ID", http.StatusBadRequest)
 		return
@@ -112,6 +112,7 @@ func DeleteCategoty(w http.ResponseWriter, r *http.Request) {
 
 	// Return a success response
 	w.WriteHeader(http.StatusNoContent)
+	w.Write([]byte("Success"))
 }
 
 // put a category
