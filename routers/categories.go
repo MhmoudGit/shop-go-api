@@ -95,20 +95,17 @@ func CreateCategory(w http.ResponseWriter, r *http.Request) {
 
 // delete a category
 func DeleteCategoty(w http.ResponseWriter, r *http.Request) {
-	// Parse the request body
-	var request struct {
-		ID int `json:"id"`
-	}
-
-	err := json.NewDecoder(r.Body).Decode(&request)
+	// Get the ID parameter from the URL
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, "Invalid category ID", http.StatusBadRequest)
 		return
 	}
 
 	// Delete the category from the database
 	var category models.Category
-	result := db.Db.Delete(&category, request.ID)
+	result := db.Db.Unscoped().Delete(&category, id)
 	if result.Error != nil {
 		http.Error(w, "Failed to delete category", http.StatusInternalServerError)
 		return
@@ -143,7 +140,8 @@ func UpdateCategory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to find category", http.StatusInternalServerError)
 		return
 	}
-
+	// Update the existing category with the new data
+	existingCategory.Name = category.Name
 	// Update the category in the database
 	result = db.Db.Model(&existingCategory).Updates(category)
 	if result.Error != nil {
