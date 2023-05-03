@@ -16,7 +16,7 @@ type Logger struct {
 func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	l.handler.ServeHTTP(w, r)
-	log.Printf("%s %s %v", r.Method, r.URL.Path, time.Since(start))
+	log.Printf("%v %s %s %v %v", r.Proto, r.Method, r.URL.Path, time.Since(start), r.RemoteAddr)
 }
 
 // NewLogger constructs a new Logger middleware handler
