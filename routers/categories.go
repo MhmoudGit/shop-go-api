@@ -33,7 +33,7 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 }
 
 // get single category by id
-func GetCategoty(w http.ResponseWriter, r *http.Request) {
+func GetCategory(w http.ResponseWriter, r *http.Request) {
 	// Get the ID parameter from the query string
 	idStr := mux.Vars(r)["id"]
 	if idStr == "" {

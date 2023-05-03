@@ -17,7 +17,7 @@ func main() {
 	// categories routes:
 	r.HandleFunc("/categories", routers.GetCategories).Methods("GET")
 	r.HandleFunc("/categories", routers.CreateCategory).Methods("POST")
-	r.HandleFunc("/categories/{id}", routers.GetCategoty).Methods("GET")
+	r.HandleFunc("/categories/{id}", routers.GetCategory).Methods("GET")
 	r.HandleFunc("/categories/{id}", routers.UpdateCategory).Methods("PUT")
 	r.HandleFunc("/categories/{id}", routers.DeleteCategoty).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8000", r))
