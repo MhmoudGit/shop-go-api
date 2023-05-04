@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// decrypt the token
 func decrypt(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("unexpected signing method")
@@ -16,6 +18,7 @@ func decrypt(token *jwt.Token) (interface{}, error) {
 	return []byte(config.JWTSecret), nil
 }
 
+// check token and remove Bearer
 func checkToken(token string, w http.ResponseWriter) string {
 	if token == "" {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -26,42 +29,39 @@ func checkToken(token string, w http.ResponseWriter) string {
 	return token
 }
 
-func getAdminClaims(token *jwt.Token, w http.ResponseWriter) bool {
+// get the admin token role
+func getAdminClaims(token *jwt.Token) (string, error) {
 	// Get the role claim from the token
 	claims := token.Claims.(jwt.MapClaims)
 	role, ok := claims["role"].(string)
 	if !ok {
 		// Role claim not found or not a string
-		w.WriteHeader(http.StatusUnauthorized)
-		return false
+		return "", errors.New("invalid role")
 	}
 	if role != "admin" {
-		// User does not have the necessary role to access the route
-		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(`{"message": "Invalid access"}`))
-		return false
+		// Admin does not have the necessary role to access the route
+		return "", errors.New("invalid access")
 	}
-	return true
+	return role, nil
 }
 
-func getUserClaims(token *jwt.Token, w http.ResponseWriter) bool {
+// get the user token role
+func getUserClaims(token *jwt.Token) (string, error) {
 	// Get the role claim from the token
 	claims := token.Claims.(jwt.MapClaims)
 	role, ok := claims["role"].(string)
 	if !ok {
 		// Role claim not found or not a string
-		w.WriteHeader(http.StatusUnauthorized)
-		return false
+		return "", errors.New("invalid role")
 	}
 	if role != "user" {
 		// User does not have the necessary role to access the route
-		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(`{"message": "Invalid access"}`))
-		return false
+		return "", errors.New("invalid access")
 	}
-	return true
+	return role, nil
 }
 
+// middleware to handle all routes based on token and role
 func ValidateMiddleware(adminRoute http.HandlerFunc, userRoute http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
@@ -73,12 +73,22 @@ func ValidateMiddleware(adminRoute http.HandlerFunc, userRoute http.HandlerFunc)
 			return
 		}
 		if token.Valid {
-			admin := getAdminClaims(token, w)
-			if admin {
+			if adminRoute != nil {
+				admin, err := getAdminClaims(token)
+				if err != nil && admin != "admin" {
+					w.WriteHeader(http.StatusForbidden)
+					w.Write([]byte(`{"message": "Invalid access"}`))
+					return
+				}
 				adminRoute.ServeHTTP(w, r)
 			}
-			user := getUserClaims(token, w)
-			if user {
+			if userRoute != nil {
+				user, err := getUserClaims(token)
+				if err != nil && user != "user" {
+					w.WriteHeader(http.StatusForbidden)
+					w.Write([]byte(`{"message": "Invalid access"}`))
+					return
+				}
 				userRoute.ServeHTTP(w, r)
 			}
 		} else {
