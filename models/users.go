@@ -11,3 +11,10 @@ type User struct {
 	Password string `json:"password" gorm:"not null"`
 	Role     string `json:"role" gorm:"not null;index"`
 }
+
+type GetUser struct {
+	gorm.Model
+	Email string `json:"email"`
+	Name  string `json:"name"`
+	Role  string `json:"role" gorm:"not null;index"`
+}
