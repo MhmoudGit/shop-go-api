@@ -8,7 +8,6 @@ import (
 	"github.com/MhmoudGit/shop-go-api/models"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 var user models.User
@@ -24,15 +23,27 @@ func hashPassword(password string) (string, error) {
 }
 
 // get user by email
-func GetUserByEmail(email string) *gorm.DB {
-	user := db.Db.Model(&models.User{}).Where("Email = ?", email).First(&user)
-	return user
+func GetUserByEmail(email string) (*models.User, error) {
+	result := db.Db.Model(&models.User{}).Where("Email = ?", email).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
 }
 
 // verify user password
-func VerifyPassword(password string) bool {
-	//hash password
-	return true
+func AuthinticateUser(email, password string) (bool, error) {
+	user, err := GetUserByEmail(email)
+	if err != nil {
+		return false, err
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(user.Password))
+	if err != nil {
+		// Handle error, e.g. return authentication failure
+		return false, nil
+	}
+	// Passwords match
+	return true, nil
 }
 
 func GenerateAccessToken(userID int) (string, error) {
