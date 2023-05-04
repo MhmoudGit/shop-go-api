@@ -46,7 +46,7 @@ func AuthinticateUser(email, password string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(user.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		// Handle error, e.g. return authentication failure
 		return false, nil
@@ -93,9 +93,23 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// the response
+		response := models.GetUser{
+			Model: gorm.Model{
+				ID:        user.ID,
+				CreatedAt: user.CreatedAt,
+				UpdatedAt: user.UpdatedAt,
+				DeletedAt: user.DeletedAt,
+			},
+			Email: user.Email,
+			Name:  user.Name,
+			Role:  user.Role,
+		}
+
 		// Return the access token to the client
 		w.Header().Set("Authorization", "Bearer "+accessToken)
 		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
 	} else {
 		// Return the access token to the client
 		w.WriteHeader(http.StatusUnauthorized)
