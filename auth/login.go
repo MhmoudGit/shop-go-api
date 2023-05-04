@@ -60,7 +60,7 @@ func GenerateAccessToken(userID int, role string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["user_id"] = userID
 	claims["role"] = role
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 
 	// Generate the token using HMAC SHA256 algorithm
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

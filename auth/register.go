@@ -24,7 +24,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "try again", http.StatusConflict)
 	}
 	if err != nil {
-		hashedPassword, err := HashPassword(user.Password)
+		hashedPassword, _ := HashPassword(user.Password)
 
 		user.Password = hashedPassword
 		user.Role = "user"
@@ -53,4 +53,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(response)
 	}
+}
+
+func HelloWorld(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello World"))
 }
