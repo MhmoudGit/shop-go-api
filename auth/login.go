@@ -4,8 +4,36 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/MhmoudGit/shop-go-api/db"
+	"github.com/MhmoudGit/shop-go-api/models"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
+
+var user models.User
+
+// hash password
+func hashPassword(password string) (string, error) {
+	// Generate a hashed version of the password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
+// get user by email
+func GetUserByEmail(email string) *gorm.DB {
+	user := db.Db.Model(&models.User{}).Where("Email = ?", email).First(&user)
+	return user
+}
+
+// verify user password
+func VerifyPassword(password string) bool {
+	//hash password
+	return true
+}
 
 func GenerateAccessToken(userID int) (string, error) {
 	// Define the claims for the token
