@@ -33,7 +33,7 @@ func GetUserByEmail(email string) (*models.User, error) {
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			// Return a custom "not found" error
-			return nil, fmt.Errorf("User not found for email: %s", email)
+			return nil, fmt.Errorf("wrong email or password")
 		}
 		return nil, result.Error
 	}
@@ -81,7 +81,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	userAuth, err := AuthinticateUser(user.Email, user.Password)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -99,6 +99,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Return the access token to the client
 		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("wrong email or password"))
 	}
 
 }
