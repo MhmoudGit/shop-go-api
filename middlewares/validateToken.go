@@ -16,25 +16,56 @@ func decrypt(token *jwt.Token) (interface{}, error) {
 	return []byte(config.JWTSecret), nil
 }
 
-func checkToken(token string, w http.ResponseWriter) {
+func checkToken(token string, w http.ResponseWriter) string {
 	if token == "" {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Invalid Credentials"))
-		return
+		return ""
 	}
 	token = strings.Replace(token, "Bearer ", "", 1)
-	return
+	return token
 }
 
-func ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func getAdminClaims(token *jwt.Token, w http.ResponseWriter) bool {
+	// Get the role claim from the token
+	claims := token.Claims.(jwt.MapClaims)
+	role, ok := claims["role"].(string)
+	if !ok {
+		// Role claim not found or not a string
+		w.WriteHeader(http.StatusUnauthorized)
+		return false
+	}
+	if role != "admin" {
+		// User does not have the necessary role to access the route
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte(`{"message": "Invalid access"}`))
+		return false
+	}
+	return true
+}
+
+func getUserClaims(token *jwt.Token, w http.ResponseWriter) bool {
+	// Get the role claim from the token
+	claims := token.Claims.(jwt.MapClaims)
+	role, ok := claims["role"].(string)
+	if !ok {
+		// Role claim not found or not a string
+		w.WriteHeader(http.StatusUnauthorized)
+		return false
+	}
+	if role != "user" {
+		// User does not have the necessary role to access the route
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte(`{"message": "Invalid access"}`))
+		return false
+	}
+	return true
+}
+
+func ValidateMiddleware(adminRoute http.HandlerFunc, userRoute http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
-		if tokenString == "" {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Invalid Credentials"))
-			return
-		}
-		tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
+		tokenString = checkToken(tokenString, w)
 		token, err := jwt.Parse(tokenString, decrypt)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -42,7 +73,14 @@ func ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		if token.Valid {
-			next.ServeHTTP(w, r)
+			admin := getAdminClaims(token, w)
+			if admin {
+				adminRoute.ServeHTTP(w, r)
+			}
+			user := getUserClaims(token, w)
+			if user {
+				userRoute.ServeHTTP(w, r)
+			}
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Invalid Authorization Token"))
