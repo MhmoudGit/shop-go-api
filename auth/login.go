@@ -1,23 +1,28 @@
 package auth
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/MhmoudGit/shop-go-api/config"
 	"github.com/MhmoudGit/shop-go-api/db"
 	"github.com/MhmoudGit/shop-go-api/models"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 var user models.User
 
 // hash password
-func hashPassword(password string) (string, error) {
+func HashPassword(password string) (string, error) {
 	// Generate a hashed version of the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return "", err
+		return password, err
 	}
 	return string(hashedPassword), nil
 }
@@ -26,6 +31,10 @@ func hashPassword(password string) (string, error) {
 func GetUserByEmail(email string) (*models.User, error) {
 	result := db.Db.Model(&models.User{}).Where("Email = ?", email).First(&user)
 	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			// Return a custom "not found" error
+			return nil, fmt.Errorf("User not found for email: %s", email)
+		}
 		return nil, result.Error
 	}
 	return &user, nil
@@ -46,15 +55,16 @@ func AuthinticateUser(email, password string) (bool, error) {
 	return true, nil
 }
 
-func GenerateAccessToken(userID int) (string, error) {
+func GenerateAccessToken(userID int, role string) (string, error) {
 	// Define the claims for the token
 	claims := jwt.MapClaims{}
 	claims["user_id"] = userID
+	claims["role"] = role
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	// Generate the token using HMAC SHA256 algorithm
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString([]byte("your-secret-key"))
+	signedToken, err := token.SignedString([]byte(config.JWTSecret))
 	if err != nil {
 		return "", err
 	}
@@ -63,16 +73,32 @@ func GenerateAccessToken(userID int) (string, error) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Authenticate the user and retrieve the user ID
-	userID := 123 // Replace with the actual user ID
-
-	// Generate an access token for the authenticated user
-	accessToken, err := GenerateAccessToken(userID)
+	// Parse the request body
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, "Failed to generate access token", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	userAuth, err := AuthinticateUser(user.Email, user.Password)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	// Return the access token to the client
-	w.Header().Set("Authorization", "Bearer "+accessToken)
-	w.WriteHeader(http.StatusOK)
+	if userAuth {
+		// Generate an access token for the authenticated user
+		accessToken, err := GenerateAccessToken(int(user.ID), user.Role)
+		if err != nil {
+			http.Error(w, "Failed to generate access token", http.StatusInternalServerError)
+			return
+		}
+
+		// Return the access token to the client
+		w.Header().Set("Authorization", "Bearer "+accessToken)
+		w.WriteHeader(http.StatusOK)
+	} else {
+		// Return the access token to the client
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+
 }

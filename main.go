@@ -15,6 +15,8 @@ func main() {
 	// Initialize the database connection
 	db.ConnectDB()
 
+	// auth routers
+	routers.SetupAuthRoutes(router)
 	// categories routes:
 	routers.SetupCategoriesRoutes(router)
 	// products routes:
