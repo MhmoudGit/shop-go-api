@@ -31,26 +31,14 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 		user.Password = hashedPassword
 		user.Role = "user"
-		// Insert the category into the database
+		// Insert the user into the database
 		err = db.Db.Model(&models.User{}).Create(&user).Error
 		if err != nil {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
-
 		// the response
-		response := models.GetUser{
-			Model: gorm.Model{
-				ID:        user.ID,
-				CreatedAt: user.CreatedAt,
-				UpdatedAt: user.UpdatedAt,
-				DeletedAt: user.DeletedAt,
-			},
-			Email: user.Email,
-			Name:  user.Name,
-			Role:  user.Role,
-		}
-
+		response := models.UserToResponse(&user)
 		// Return a JSON response
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
@@ -63,8 +51,24 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	x := fmt.Sprintf("Hello User: %v", id)
-	w.Write([]byte(x))
+	// Retrieve the user from the database by ID
+	err = db.Db.Model(&models.User{}).Where("ID = ?", id).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// If no user was found, return a 404 Not Found status code
+			http.Error(w, "user not found", http.StatusNotFound)
+			return
+		} else {
+			// If there was an error fetching the user, return a 500 Internal Server Error status code
+			http.Error(w, "Failed to fetch user", http.StatusInternalServerError)
+			return
+		}
+	}
+	// the response
+	response := models.UserToResponse(&user)
+	// Return the updated category
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 func GetAdmin(w http.ResponseWriter, r *http.Request) {
