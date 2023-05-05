@@ -11,7 +11,7 @@ import (
 )
 
 // decrypt the token
-func decrypt(token *jwt.Token) (interface{}, error) {
+func Decrypt(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("unexpected signing method")
 	}
@@ -61,12 +61,31 @@ func getUserClaims(token *jwt.Token) (string, error) {
 	return role, nil
 }
 
+func GetTokenClaimID(w http.ResponseWriter, r *http.Request) (float64, error) {
+	accessToken := r.Header.Get("Authorization")
+	accessToken = checkToken(accessToken, w)
+	token, err := jwt.Parse(accessToken, Decrypt)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(err.Error()))
+		return 0, err
+	}
+	// Get the id claim from the token
+	claims := token.Claims.(jwt.MapClaims)
+	id, ok := claims["user_id"].(float64)
+	if !ok {
+		// id claim not found or not a string
+		return 0, errors.New("invalid id")
+	}
+	return id, nil
+}
+
 // middleware to handle all routes based on token and role
 func AuthMiddleware(adminRoute http.HandlerFunc, userRoute http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 		tokenString = checkToken(tokenString, w)
-		token, err := jwt.Parse(tokenString, decrypt)
+		token, err := jwt.Parse(tokenString, Decrypt)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))

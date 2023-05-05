@@ -2,11 +2,14 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
+
 	// "errors"
 
 	"net/http"
 
 	"github.com/MhmoudGit/shop-go-api/db"
+	"github.com/MhmoudGit/shop-go-api/middlewares"
 	"github.com/MhmoudGit/shop-go-api/models"
 	"gorm.io/gorm"
 )
@@ -56,8 +59,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-
-	w.Write([]byte("Hello User"))
+	id, err := middlewares.GetTokenClaimID(w, r)
+	if err != nil {
+		fmt.Println(err)
+	}
+	x := fmt.Sprintf("Hello User: %v", id)
+	w.Write([]byte(x))
 }
 
 func GetAdmin(w http.ResponseWriter, r *http.Request) {
