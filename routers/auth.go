@@ -13,5 +13,5 @@ func SetupAuthRoutes(router *mux.Router) {
 	// define the routes for the subrouter
 	authRouter.HandleFunc("/login", auth.LoginHandler).Methods("POST")
 	authRouter.HandleFunc("/register", auth.CreateUser).Methods("POST")
-	authRouter.HandleFunc("/hello", middlewares.ValidateMiddleware(auth.HelloWorld, nil)).Methods("GET")
+	authRouter.HandleFunc("/hello", middlewares.AuthMiddleware(auth.GetUser, nil)).Methods("GET")
 }

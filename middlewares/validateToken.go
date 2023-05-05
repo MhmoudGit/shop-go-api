@@ -62,7 +62,7 @@ func getUserClaims(token *jwt.Token) (string, error) {
 }
 
 // middleware to handle all routes based on token and role
-func ValidateMiddleware(adminRoute http.HandlerFunc, userRoute http.HandlerFunc) http.HandlerFunc {
+func AuthMiddleware(adminRoute http.HandlerFunc, userRoute http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 		tokenString = checkToken(tokenString, w)
