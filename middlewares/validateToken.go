@@ -61,6 +61,7 @@ func getUserClaims(token *jwt.Token) (string, error) {
 	return role, nil
 }
 
+// get token claims and return user id
 func GetTokenClaimID(w http.ResponseWriter, r *http.Request) (float64, error) {
 	accessToken := r.Header.Get("Authorization")
 	accessToken = checkToken(accessToken, w)
