@@ -92,20 +92,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to generate access token", http.StatusInternalServerError)
 			return
 		}
-
 		// the response
-		response := models.GetUser{
-			Model: gorm.Model{
-				ID:        user.ID,
-				CreatedAt: user.CreatedAt,
-				UpdatedAt: user.UpdatedAt,
-				DeletedAt: user.DeletedAt,
-			},
-			Email: user.Email,
-			Name:  user.Name,
-			Role:  user.Role,
-		}
-
+		response := models.UserToResponse(&user)
 		// Return the access token to the client
 		w.Header().Set("Authorization", "Bearer "+accessToken)
 		w.WriteHeader(http.StatusOK)
