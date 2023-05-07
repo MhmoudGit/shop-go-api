@@ -49,7 +49,7 @@ func AuthinticateUser(email, password string) (bool, error) {
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		// Handle error, e.g. return authentication failure
-		return false, nil
+		return false, err
 	}
 	// Passwords match
 	return true, nil
@@ -79,6 +79,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	// authinticate user
 	userAuth, err := AuthinticateUser(user.Email, user.Password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
