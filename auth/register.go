@@ -22,6 +22,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	// check if email exists in db
 	dbUser, err := GetUserByEmail(user.Email)
 	if dbUser != nil {
 		http.Error(w, "try again", http.StatusConflict)
