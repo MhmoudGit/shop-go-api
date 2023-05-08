@@ -2,6 +2,7 @@ package routers
 
 import (
 	"github.com/MhmoudGit/shop-go-api/controllers"
+	"github.com/MhmoudGit/shop-go-api/middlewares"
 	"github.com/gorilla/mux"
 )
 
@@ -11,8 +12,8 @@ func SetupCategoriesRoutes(router *mux.Router) {
 
 	// define the routes for the subrouter
 	categoriesRouter.HandleFunc("", controllers.GetCategories).Methods("GET")
-	categoriesRouter.HandleFunc("", controllers.CreateCategory).Methods("POST")
+	categoriesRouter.HandleFunc("", middlewares.AuthMiddleware(controllers.CreateCategory, nil)).Methods("POST")
 	categoriesRouter.HandleFunc("/{id}", controllers.GetCategory).Methods("GET")
-	categoriesRouter.HandleFunc("/{id}", controllers.UpdateCategory).Methods("PUT")
-	categoriesRouter.HandleFunc("/{id}", controllers.DeleteCategoty).Methods("DELETE")
+	categoriesRouter.HandleFunc("/{id}", middlewares.AuthMiddleware(controllers.UpdateCategory, nil)).Methods("PUT")
+	categoriesRouter.HandleFunc("/{id}", middlewares.AuthMiddleware(controllers.DeleteCategoty, nil)).Methods("DELETE")
 }

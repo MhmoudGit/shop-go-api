@@ -47,6 +47,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// get user info
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	id, err := middlewares.GetTokenClaimID(w, r)
 	if err != nil {

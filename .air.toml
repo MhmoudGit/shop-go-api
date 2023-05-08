@@ -26,7 +26,7 @@ tmp_dir = "tmp"
   stop_on_error = false
 
 [color]
-  app = ""
+  app = "red"
   build = "yellow"
   main = "magenta"
   runner = "green"
@@ -34,7 +34,7 @@ tmp_dir = "tmp"
 
 [log]
   main_only = false
-  time = false
+  time = true
 
 [misc]
   clean_on_exit = false
