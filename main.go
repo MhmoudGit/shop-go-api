@@ -26,6 +26,6 @@ func main() {
 	wrappedMux := middlewares.NewLogger(router)
 
 	log.Printf("server is listening on Port 8000")
-	log.Fatal(http.ListenAndServe(":8000", wrappedMux))
+	log.Fatal(http.ListenAndServe("127.0.0.1:8000", wrappedMux))
 
 }

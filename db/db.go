@@ -19,7 +19,7 @@ func ConnectDB() *gorm.DB {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	fmt.Println("Postgres Sql db is connected")
+	fmt.Println("Postgres Sql db is connected...")
 
 	// Migrate the database model
 	err = Db.AutoMigrate(&models.Category{}, &models.Product{}, &models.User{})
